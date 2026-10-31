@@ -1,0 +1,24 @@
+# Python environments
+.venv/
+tools/.venv-audio/
+__pycache__/
+*.pyc
+
+# ufbt build output and editor config
+nfc_cart/dist/
+nfc_cart/.vscode/
+.ufbt/
+
+# Local audio work (stems, previews, caches)
+songs/previews/
+songs/private/
+*.wav
+*.m4a
+*.mp3
+*.npz
+
+# Host test binary
+test_ndef
+*.dSYM/
+
+.DS_Store

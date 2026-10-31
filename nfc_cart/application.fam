@@ -1,0 +1,13 @@
+App(
+    appid="nfc_cart",
+    name="NFC Cartridges",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="nfc_cart_app",
+    requires=["gui", "storage", "dialogs", "notification"],
+    stack_size=4 * 1024,
+    fap_category="NFC",
+    fap_icon="nfc_cart.png",
+    fap_version="0.1",
+    fap_author="andyyaro",
+    fap_description="Songs that live entirely on an NFC sticker. Burn one, tap it, it plays.",
+)
