@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/brand/lockup/lockup-color.svg" alt="NFC Cartridges" width="326">
+</p>
+
 # NFC Cartridges for Flipper Zero
 
 Songs that live entirely on an NFC sticker. Burn a tune onto a cheap NTAG sticker with your Flipper, stick it on something, and tap it later to hear it play.
