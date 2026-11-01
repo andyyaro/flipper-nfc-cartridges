@@ -83,3 +83,7 @@ Results vary a lot. Simple, clearly sung melodies come out best. Fast or heavily
 - Game cartridges: tiny games or levels stored on the sticker
 - Save data written back to the cartridge
 - Swapping and lending cartridges between Flippers
+
+## License
+
+MIT. See [LICENSE](LICENSE).
