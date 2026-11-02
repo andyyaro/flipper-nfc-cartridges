@@ -1,0 +1,131 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: var(--cream); opacity: 0; }
+    #bd { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+    /* cards: white, rounded, no shadows; a coloured tile with a line glyph, a bold title, a secondary line */
+    .card { position: absolute; top: 290px; padding: 26px 28px 28px; border-radius: 28px; background: var(--card); opacity: 0; }
+    .hd { display: flex; gap: 16px; align-items: center; }
+    .tile { flex: none; width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 30px; }
+    .tt { font-size: 30px; line-height: 36px; font-weight: 600; }
+    .ts { margin-top: 2px; font-size: 22px; line-height: 28px; color: var(--ink-3); }
+    #cA { left: 96px; width: 520px; }
+    #cB { left: 700px; width: 500px; }
+    #cC { left: 1284px; width: 540px; }
+    /* the song text, set in Geist like everything else */
+    #rt { margin-top: 22px; padding: 18px 20px; border-radius: 16px; background: var(--fill); font-size: 24px; line-height: 36px; font-weight: 500;
+          word-break: break-all; color: var(--ink); }
+    #rt b { font-weight: 700; }
+    .flds { margin-top: 22px; display: flex; flex-direction: column; gap: 10px; }
+    .fld { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-radius: 12px; background: var(--fill);
+           font-size: 23px; line-height: 28px; }
+    .fld span:first-child { font-weight: 600; }
+    .fld span:last-child { color: var(--ink-3); }
+    .fld.song { background: rgba(209, 15, 106, 0.1); }
+    .st { margin-top: 18px; display: flex; align-items: center; gap: 10px; font-size: 24px; line-height: 30px; font-weight: 500; }
+    /* the sticker's user memory: 126 pages of 4 bytes, 14 x 9 */
+    #p4 { margin-top: 20px; height: 30px; display: flex; align-items: center; gap: 10px; font-size: 23px; line-height: 30px; font-weight: 600; opacity: 0; }
+    #grid { margin-top: 10px; display: grid; grid-template-columns: repeat(14, 30px); grid-auto-rows: 24px; gap: 4px; position: relative; }
+    .pg { border-radius: 5px; background: var(--fill); position: relative; }
+    .pg i { position: absolute; inset: 0; border-radius: 5px; background: var(--magenta); opacity: 0; }
+    .pg u { position: absolute; inset: 0; border-radius: 5px; background: var(--orange); opacity: 0; }
+    .pg svg { position: absolute; left: 7px; top: 4px; width: 16px; height: 16px; color: #fff; opacity: 0; }
+    #cst, #cnote { opacity: 0; }
+    #p4, #cst { position: relative; }
+    .alt { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 10px; white-space: nowrap; opacity: 0; }
+    #cst { height: 30px; }
+    /* connectors: a line that draws, with an arrow head */
+    .wire { position: absolute; top: 352px; height: 3px; background: var(--ink); border-radius: 2px; transform-origin: 0 50%; transform: scaleX(0); }
+    .wire::after { content: ""; position: absolute; right: -2px; top: -6px; border-left: 12px solid var(--ink); border-top: 7.5px solid transparent; border-bottom: 7.5px solid transparent; }
+    #w1 { left: 624px; width: 66px; } #w2 { left: 1208px; width: 66px; }
+    .bchip { position: absolute; top: 760px; opacity: 0; background: #fff; }
+    #chSD { left: 96px; } #chPh { left: 700px; } #chLk { left: 1284px; }
+  </style>
+  <div id="root" data-composition-id="s4-board" data-width="1920" data-height="1080">
+    <div id="bd">
+      <div class="topleft" style="top: 84px; max-width: none">
+        <div class="kicker">Inside a cartridge</div>
+        <div class="head">Everything lives on the sticker.</div>
+      </div>
+      <div class="card" id="cA">
+        <div class="hd"><div class="tile" style="background: var(--magenta)"><svg class="ic"><use href="#ic-doc" /></svg></div>
+          <div><div class="tt">ode_to_joy.txt</div><div class="ts">a song in RTTTL, 90 characters of text</div></div></div>
+        <div id="rt"><b>Ode to Joy</b>:d=4,o=5,b=140:e,e,f,g,g,f,e,d,c,c,d,e,e.,8d,2d,e,e,f,g,g,f,e,d,c,c,d,e,d.,8c,2c</div>
+      </div>
+      <div class="wire" id="w1"></div>
+      <div class="card" id="cB">
+        <div class="hd"><div class="tile" style="background: var(--ink)"><svg class="ic"><use href="#ic-text.alignleft" /></svg></div>
+          <div><div class="tt">NDEF Text record</div><div class="ts">the standard format phones read</div></div></div>
+        <div class="flds">
+          <div class="fld"><span>NDEF block</span><span>type 03, length 97</span></div>
+          <div class="fld"><span>Record header</span><span>4 bytes</span></div>
+          <div class="fld"><span>Text, in English</span><span>T, en</span></div>
+          <div class="fld song"><span>The song</span><span>90 bytes</span></div>
+          <div class="fld"><span>End mark</span><span>FE</span></div>
+        </div>
+        <div class="st"><span class="dot m"></span><span>100 bytes in all</span></div>
+      </div>
+      <div class="wire" id="w2"></div>
+      <div class="card" id="cC">
+        <div class="hd"><div class="tile" style="background: #f472b0"><svg class="ic"><use href="#ic-tag" /></svg></div>
+          <div><div class="tt">NTAG215 sticker</div><div class="ts">user memory: 126 pages of 4 bytes</div></div></div>
+        <div id="p4"><div class="alt" id="p4a"><span class="dot o"></span><span>Page 4 first, with length 0</span></div>
+          <div class="alt" id="p4b"><span class="dot g"></span><span>Page 4 last, with the real length: 97</span></div></div>
+        <div id="grid"></div>
+        <div class="st" id="cst"><div class="alt" id="cs1"><span class="dot"></span><span>Pages 5 to 28</span></div>
+          <div class="alt" id="cs2"><span class="dot m"></span><span>25 pages: the whole song</span></div>
+          <div class="alt" id="cs3"><span class="dot g"></span><span>Read back: every byte matches</span></div></div>
+        <div class="st" id="cnote"><span class="dot o"></span><span>Pulled away halfway, it reads as blank</span></div>
+      </div>
+      <div class="chip bchip" id="chSD"><svg class="ic"><use href="#ic-archivebox" /></svg><span>SD card: nothing stored</span></div>
+      <div class="chip bchip" id="chPh"><svg class="ic"><use href="#ic-wifi" /></svg><span>Any phone's NFC app can read it</span></div>
+      <div class="chip bchip" id="chLk"><span class="dot r"></span><span>Locked or password-protected: refused</span></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const TM = window.TM, C = TM.cues;
+      const S0 = TM.s4[0], S1 = TM.s4[1];
+      const grid = document.querySelector("#grid");
+      const pages = [];
+      for (let i = 0; i < 126; i++) {
+        const d = document.createElement("div"); d.className = "pg";
+        d.innerHTML = '<u></u><i></i>' + (i < 25 ? '<svg class="ic"><use href="#ic-checkmark" /></svg>' : "");
+        grid.appendChild(d); pages.push(d);
+      }
+      const r = (t) => t - S0;
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#root", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "none" }, 0);
+      const pop = (sel, t) => tl.fromTo(sel, { opacity: 0, y: 18, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.4)" }, r(t));
+      pop("#chSD", C.b_sd);
+      pop("#cA", C.b_file);
+      tl.to("#w1", { scaleX: 1, duration: 0.35, ease: "power2.out" }, r(C.b_ndef) - 0.35);
+      pop("#cB", C.b_ndef);
+      pop("#chPh", C.b_phone);
+      tl.to("#w2", { scaleX: 1, duration: 0.35, ease: "power2.out" }, r(C.b_glide) - 0.7);
+      pop("#cC", C.b_glide - 0.4);
+      // the camera: into the sticker card for the write and the check, then back out
+      const cam = (s, px, py, cx, cy) => ({ scale: s, x: cx - s * px, y: cy - s * py });
+      const FULL = { scale: 1, x: 0, y: 0 }, INTO = cam(1.55, 1554, 520, 1010, 470);
+      tl.set("#bd", FULL, 0);
+      tl.to("#bd", { ...INTO, duration: 1.0, ease: "power2.inOut" }, r(C.b_glide));
+      tl.to("#bd", { ...FULL, duration: 1.0, ease: "power2.inOut" }, r(C.b_pull));
+      // the write: page 4 with length 0, pages 5-28, page 4 again with the real length
+      tl.fromTo("#p4", { opacity: 0 }, { opacity: 1, duration: 0.3 }, r(C.b_len0));
+      tl.to(pages[0].querySelector("u"), { opacity: 1, duration: 0.15 }, r(C.b_len0));
+      tl.fromTo("#cst", { opacity: 0 }, { opacity: 1, duration: 0.3 }, r(C.b_fill));
+      for (let i = 1; i < 25; i++) tl.to(pages[i].querySelector("i"), { opacity: 1, duration: 0.08 }, r(C.b_fill) + (i - 1) * 0.03);
+      tl.to(pages[0].querySelector("i"), { opacity: 1, duration: 0.2 }, r(C.b_len97));
+      const swap = (a, b, t) => { tl.to(a, { opacity: 0, duration: 0.15 }, t); tl.fromTo(b, { opacity: 0 }, { opacity: 1, duration: 0.2 }, t + 0.05); };
+      tl.set("#p4a", { opacity: 1 }, r(C.b_len0)); tl.set("#cs1", { opacity: 1 }, r(C.b_fill));
+      swap("#p4a", "#p4b", r(C.b_len97));
+      swap("#cs1", "#cs2", r(C.b_len97));
+      tl.fromTo("#cnote", { opacity: 0 }, { opacity: 1, duration: 0.3 }, r(C.b_torn));
+      // the check: every written page read back
+      for (let i = 0; i < 25; i++) tl.to(pages[i].querySelector("svg"), { opacity: 1, duration: 0.1 }, r(C.b_check) + i * 0.035);
+      swap("#cs2", "#cs3", r(C.b_match));
+      pop("#chLk", C.b_locked);
+      tl.to("#root", { opacity: 0, duration: 0.25, ease: "none" }, S1 - S0 - 0.4);
+      window.__timelines["s4-board"] = tl;
+    })();
+  </script>
+</template>

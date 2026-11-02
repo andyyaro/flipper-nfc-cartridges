@@ -1,0 +1,14 @@
+{
+ "v01": "A plain N F C sticker holds five hundred and four bytes.",
+ "v02": "That's room for a whole song.",
+ "v03": "N F C Cartridges, for Flipper Zero.",
+ "v04": "Pick a song, then hold a blank sticker to the back.",
+ "v05": "It burns the tune on, page by page, in under two seconds.",
+ "v06": "Ode to Joy takes a hundred bytes.",
+ "v07": "Nothing goes on the S D card. The song is a standard [NDEF](/ˈɛndɛf/) text record, so phones can read it too.",
+ "v08": "It writes the length last, so a torn burn reads as blank, never half a song.",
+ "v09": "Then it reads the sticker back and checks every byte.",
+ "v10": "Tap it in Play, and the Flipper plays it straight off the sticker.",
+ "v11": "It burns [N-tag](/ˈɛntæɡ/) two-thirteen, two-fifteen and two-sixteen stickers, from a short jingle to two hundred and fifty notes.",
+ "v12": "N F C Cartridges. Songs that live on a sticker."
+}

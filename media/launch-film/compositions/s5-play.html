@@ -1,0 +1,26 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #p-top { opacity: 0; }
+    #p-chip { position: absolute; left: 96px; top: 96px; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="s5-play" data-width="1920" data-height="1080">
+    <div id="p-top" class="topleft">
+      <div class="kicker">Play</div>
+      <div class="head">Tap it to the back.</div>
+    </div>
+    <div id="p-chip" class="chip"><svg class="ic"><use href="#ic-music.note" /></svg><span>Ode to Joy, read from the sticker</span></div>
+  </div>
+  <script>
+    (function () {
+      const TM = window.TM, C = TM.cues;
+      const S0 = TM.s5[0], S1 = TM.s5[1];
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#p-top", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.25);
+      tl.to("#p-top", { opacity: 0, duration: 0.5, ease: "power1.in" }, TM.solo - S0 + 0.6);
+      tl.fromTo("#p-chip", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, TM.solo - S0 + 1.2);
+      tl.to("#p-chip", { opacity: 0, duration: 0.4, ease: "power1.in" }, TM.return - S0 - 0.6);
+      window.__timelines["s5-play"] = tl;
+    })();
+  </script>
+</template>

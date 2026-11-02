@@ -1,0 +1,30 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: var(--pink); }
+    /* the lockup on the drop: the app's own logo (docs/assets/brand/lockup/lockup-color.svg, its pink is the ground) */
+    #t-stack { position: absolute; left: 0; right: 0; top: 150px; display: flex; flex-direction: column; align-items: center; }
+    #t-logo { width: 920px; height: 561px; display: block; opacity: 0; }
+    #t-line { margin-top: -30px; font-size: 46px; line-height: 56px; font-weight: 500; letter-spacing: -0.6px; opacity: 0; }
+    #t-chip { margin-top: 34px; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="s2-title" data-width="1920" data-height="1080">
+    <div id="t-stack">
+      <img id="t-logo" src="assets/brand/lockup-color.svg" alt="NFC Cartridges" />
+      <div id="t-line">Songs that live on a sticker. Tap to play.</div>
+      <div id="t-chip" class="chip"><svg class="ic"><use href="#ic-music.note" /></svg><span>A Flipper Zero app · open source, MIT</span></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const TM = window.TM, C = TM.cues;
+      const S0 = TM.s2[0], S1 = TM.s2[1];
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#t-logo", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.5)" }, C.mark_title - S0);
+      tl.fromTo("#t-line", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, C.title_line - S0);
+      tl.fromTo("#t-chip", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, C.title_line - S0 + 0.6);
+      tl.to("#t-stack", { opacity: 0, duration: 0.3, ease: "power1.in" }, S1 - S0 - 0.75);
+      tl.to("#root", { opacity: 0, duration: 0.01 }, S1 - S0 - 0.4);   // the burn shot shows from its bar line
+      window.__timelines["s2-title"] = tl;
+    })();
+  </script>
+</template>

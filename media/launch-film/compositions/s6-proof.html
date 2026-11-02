@@ -1,0 +1,41 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #q-top { opacity: 0; }
+    /* under each 3D sticker (stage/shots.js s6: x = -0.42, 0, 0.42 -> 396, 960, 1524 px) */
+    .lab { position: absolute; top: 726px; width: 420px; margin-left: -210px; text-align: center; opacity: 0; }
+    .lab b { display: block; font-size: 42px; line-height: 50px; font-weight: 700; letter-spacing: -0.6px; }
+    .lab span { display: block; margin-top: 4px; font-size: 30px; line-height: 36px; font-weight: 500; }
+    .lab i { display: block; margin-top: 2px; font-style: normal; font-size: 26px; line-height: 32px; color: var(--ink-2); }
+    #q-chips { position: absolute; left: 0; right: 0; top: 856px; display: flex; justify-content: center; gap: 16px; }
+    #q-chips .chip { opacity: 0; font-size: 26px; padding: 10px 22px 10px 16px; }
+  </style>
+  <div id="root" data-composition-id="s6-proof" data-width="1920" data-height="1080">
+    <div id="q-top" class="topleft">
+      <div class="kicker">Stickers</div>
+      <div class="head">From a jingle to 250 notes.</div>
+    </div>
+    <div class="lab" id="l213" style="left: 396px"><b>NTAG213</b><span>144 bytes</span><i>a short jingle</i></div>
+    <div class="lab" id="l215" style="left: 960px"><b>NTAG215</b><span>504 bytes</span><i>100 to 150 notes</i></div>
+    <div class="lab" id="l216" style="left: 1524px"><b>NTAG216</b><span>888 bytes</span><i>250+ notes</i></div>
+    <div id="q-chips">
+      <div class="chip"><span class="dot g"></span><span>Built for official firmware 1.2.0</span></div>
+      <div class="chip"><span class="dot g"></span><span>NDEF encoder tests pass</span></div>
+      <div class="chip"><span class="dot g"></span><span>Open source, MIT</span></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const TM = window.TM, C = TM.cues;
+      const S0 = TM.s6[0], S1 = TM.s6[1];
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#q-top", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.2);
+      [["#l213", C.p_213], ["#l215", C.p_215], ["#l216", C.p_216]].forEach(([s, t]) =>
+        tl.fromTo(s, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, t - S0 + 0.1));
+      document.querySelectorAll("#q-chips .chip").forEach((el, i) =>
+        tl.fromTo(el, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, C.p_chips - S0 + i * 0.18));
+      tl.to("#root > *", { opacity: 0, duration: 0.35, ease: "power1.in" }, S1 - S0 - 0.75);
+      window.__timelines["s6-proof"] = tl;
+    })();
+  </script>
+</template>

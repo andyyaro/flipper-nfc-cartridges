@@ -1,0 +1,22 @@
+1793594313.280 stream on
+1793594320.921 cmd start /ext/apps/NFC/nfc_cart.fap
+1793594321.046 start status [0]
+1793594342.870 cmd mark about
+1793594344.381 cmd press DOWN
+1793594345.392 cmd press DOWN
+1793594346.410 cmd press OK
+1793594366.309 cmd press BACK
+1793594367.503 cmd mark burn
+1793594367.503 cmd press UP
+1793594368.523 cmd press OK
+1793594460.803 cmd press DOWN
+1793594461.618 cmd press DOWN
+1793594471.259 cmd mark select ode
+1793594471.259 cmd press OK
+1793594503.162 cmd press OK
+1793594516.661 cmd mark play
+1793594516.662 cmd press UP
+1793594517.533 cmd press OK
+1793594557.318 cmd exit
+1793594558.833 cmd stop
+1793594558.987 stream off, 1742 frames

@@ -1,0 +1,56 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    /* right of the 3D sticker (left third): what it is, its size, and a whole song's worth of notes */
+    #h-block { position: absolute; left: 1010px; top: 300px; width: 820px; }
+    #h-kick { opacity: 0; }
+    #h-num { margin-top: 18px; display: flex; align-items: baseline; gap: 22px; opacity: 0; }
+    #h-n { font-size: 210px; line-height: 200px; font-weight: 700; letter-spacing: -8px; font-variant-numeric: tabular-nums; }
+    #h-u { font-size: 72px; line-height: 80px; font-weight: 600; letter-spacing: -1.5px; }
+    /* Ode to Joy's 30 notes as pixels, height by pitch (c..g), width by length */
+    #h-mel { position: absolute; left: 0; top: 330px; width: 820px; height: 120px; }
+    .nt { position: absolute; height: 16px; border-radius: 3px; background: var(--ink); opacity: 0; }
+    #h-cap { position: absolute; left: 0; top: 470px; font-size: 30px; line-height: 36px; font-weight: 500; color: var(--ink-2); opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="s1-hook" data-width="1920" data-height="1080">
+    <div id="h-block">
+      <div id="h-kick" class="kicker">NTAG215 · 25 mm NFC sticker</div>
+      <div id="h-num"><span id="h-n">504</span><span id="h-u">bytes</span></div>
+      <div id="h-mel"></div>
+      <div id="h-cap">Ode to Joy, 30 notes</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const TM = window.TM, C = TM.cues;
+      const S0 = TM.s1[0], S1 = TM.s1[1];
+      // the song on the cartridge (songs/ode_to_joy.txt): pitch steps above c, length in quarters
+      const MEL = "e e f g g f e d c c d e e. 8d 2d e e f g g f e d c c d e d. 8c 2c".split(" ");
+      const STEP = { c: 0, d: 1, e: 2, f: 3, g: 4 };
+      const mel = document.querySelector("#h-mel");
+      let x = 0;
+      const notes = MEL.map((n) => {
+        const m = n.match(/^(\d?)([a-g])(\.?)$/);
+        const q = (m[1] ? 4 / +m[1] : 1) * (m[3] ? 1.5 : 1);
+        const el = document.createElement("div");
+        el.className = "nt";
+        const w = 18 * q;
+        el.style.left = x + "px"; el.style.width = w + "px"; el.style.top = (100 - STEP[m[2]] * 22) + "px";
+        x += w + 7;
+        mel.appendChild(el);
+        return el;
+      });
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#h-kick", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.55);
+      // the counter runs up to 504 as she says it
+      const n = { v: 0 }, ne = document.querySelector("#h-n");
+      tl.fromTo("#h-num", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, C.h_count - S0 - 0.35);
+      tl.fromTo(n, { v: 0 }, { v: 504, duration: 0.7, ease: "power2.out", onUpdate: () => { ne.textContent = Math.round(n.v); } }, C.h_count - S0 - 0.35);
+      // "a whole song": the notes appear left to right
+      notes.forEach((el, i) => tl.fromTo(el, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.18, ease: "power2.out" }, C.h_song - S0 - 0.15 + i * 0.035));
+      tl.fromTo("#h-cap", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power1.out" }, C.h_song - S0 + 1.0);
+      tl.to("#h-block", { opacity: 0, duration: 0.35, ease: "power1.in" }, S1 - S0 - 0.4);
+      window.__timelines["s1-hook"] = tl;
+    })();
+  </script>
+</template>

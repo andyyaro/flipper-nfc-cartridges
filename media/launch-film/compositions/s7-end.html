@@ -1,0 +1,28 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    /* the lockup on the left (its own pink ground matches), the 3D Flipper and a cartridge on the right */
+    #e-stack { position: absolute; left: 120px; top: 170px; width: 820px; display: flex; flex-direction: column; align-items: center; }
+    #e-logo { width: 780px; height: 476px; display: block; opacity: 0; }
+    #e-line { margin-top: -24px; font-size: 40px; line-height: 50px; font-weight: 500; letter-spacing: -0.5px; opacity: 0; }
+    #e-url { margin-top: 30px; font-size: 32px; line-height: 40px; font-weight: 600; color: var(--ink); opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="s7-end" data-width="1920" data-height="1080">
+    <div id="e-stack">
+      <img id="e-logo" src="assets/brand/lockup-color.svg" alt="NFC Cartridges" />
+      <div id="e-line">Songs that live on a sticker. Tap to play.</div>
+      <div id="e-url">github.com/andyyaro/flipper-nfc-cartridges</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const TM = window.TM, C = TM.cues;
+      const S0 = TM.s7[0];
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#e-logo", { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.4)" }, C.mark_end - S0 + 0.05);
+      tl.fromTo("#e-line", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, C.end_line - S0);
+      tl.fromTo("#e-url", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, C.end_url - S0);
+      window.__timelines["s7-end"] = tl;
+    })();
+  </script>
+</template>

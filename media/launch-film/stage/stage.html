@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>NFC Cartridges: 3D stage</title>
+<!-- The film's 3D shots: the Flipper Zero model (assets/models/flipper.glb, from stage/export_flipper.py) with the
+     real recorded screen on its display, and the NTAG215 sticker model. stage/render.py drives it frame by frame:
+     window.renderFrame(t) poses everything for film time t (stage/shots.js) and draws one frame. -->
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  body { background: var(--bg, #fff5e1); }
+  #gl { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+</style>
+<script src="../assets/timing.js"></script>
+<script src="../assets/vo.js"></script>
+<script src="../assets/tape.js"></script>
+<script src="shots.js"></script>
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.js" } }</script>
+</head>
+<body>
+<canvas id="gl" width="1920" height="1080"></canvas>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './vendor/jsm/loaders/GLTFLoader.js';
+import { RoomEnvironment } from './vendor/jsm/environments/RoomEnvironment.js';
+
+const W = 1920, H = 1080;
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setClearColor(0x000000, 0);
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.75;
+
+const camera = new THREE.PerspectiveCamera(30, W / H, 0.01, 50);
+
+// key light from the upper left, casting a soft shadow onto an invisible floor
+const key = new THREE.DirectionalLight(0xffffff, 1.6);
+key.position.set(-1.6, 3.2, 2.2);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -1.6; key.shadow.camera.right = 1.6; key.shadow.camera.top = 1.6; key.shadow.camera.bottom = -1.6;
+key.shadow.camera.near = 0.5; key.shadow.camera.far = 8;
+key.shadow.radius = 8; key.shadow.blurSamples = 16; key.shadow.bias = -0.0004; key.shadow.normalBias = 0.01;
+scene.add(key, key.target);
+const rim = new THREE.DirectionalLight(0xfff1e0, 0.7);
+rim.position.set(2.2, 1.0, -1.8);
+scene.add(rim);
+// a soft fill that travels with the camera (from just above it), so whatever the camera looks at has some light:
+// the back of the device and the sticker on it face away from the key light
+const fill = new THREE.DirectionalLight(0xffffff, 0.55);
+scene.add(fill, fill.target);
+
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.ShadowMaterial({ opacity: 0.16 }));
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -0.45;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// ---- the screen: one canvas, redrawn from the recorded screens (assets/screen/sNNNN.png)
+const scr = document.createElement('canvas'); scr.width = 1080; scr.height = 576;
+const sctx = scr.getContext('2d');
+const screenTex = new THREE.CanvasTexture(scr);
+screenTex.colorSpace = THREE.SRGBColorSpace;
+screenTex.flipY = false;                     // glTF UV convention
+screenTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+screenTex.minFilter = THREE.LinearMipmapLinearFilter;
+screenTex.magFilter = THREE.LinearFilter;
+const IMG = {};
+let shownScreen = null;
+function loadScreen(id) {
+  if (IMG[id]) return IMG[id].p;
+  const im = new Image(); im.src = `../assets/screen/${id}.png`;
+  IMG[id] = { im, p: im.decode().then(() => im) };
+  return IMG[id].p;
+}
+function showScreen(id) {
+  if (id === shownScreen) return;
+  sctx.drawImage(IMG[id].im, 0, 0, 1080, 576);
+  screenTex.needsUpdate = true;
+  shownScreen = id;
+}
+
+// ---- materials, rebuilt by name (the source used Cycles node groups)
+const M = {
+  Flipper_Main: new THREE.MeshPhysicalMaterial({ color: 0xf1f0ec, roughness: 0.42, clearcoat: 0.25, clearcoatRoughness: 0.35 }),
+  Flipper_Orange: new THREE.MeshPhysicalMaterial({ color: 0xff5f00, roughness: 0.5, clearcoat: 0.12, clearcoatRoughness: 0.4 }),
+  Flipper_Black: new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.55 }),
+  Flipper_Screen: new THREE.MeshPhysicalMaterial({ color: 0x000000, emissive: 0xffffff, emissiveMap: screenTex, emissiveIntensity: 1.0,
+                                                  roughness: 0.08, clearcoat: 1.0, clearcoatRoughness: 0.04 }),
+  Flipper_Screen_Glow: new THREE.MeshStandardMaterial({ color: 0x0c0c0c, roughness: 0.6 }),
+  Flipper_Green: new THREE.MeshStandardMaterial({ color: 0x1d2a26, roughness: 0.2, emissive: 0x00e5ff, emissiveIntensity: 0 }),
+  Flipper_InfraRed: new THREE.MeshPhysicalMaterial({ color: 0x2a0606, roughness: 0.12, clearcoat: 1 }),
+  Flipper_Pins: new THREE.MeshStandardMaterial({ color: 0xd1a94e, metalness: 1, roughness: 0.32 }),
+};
+const stickerMat = new THREE.MeshPhysicalMaterial({ color: 0xefede7, roughness: 0.72, clearcoat: 0.15, clearcoatRoughness: 0.6 });
+
+const flipper = new THREE.Group();
+const stickers = [new THREE.Group(), new THREE.Group(), new THREE.Group()];
+const parts = {};
+scene.add(flipper, ...stickers);
+// the NFC field: a thin ring that grows out from behind the device when a sticker touches its back
+const pulseMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide });
+const pulse = new THREE.Mesh(new THREE.RingGeometry(0.965, 1.0, 160), pulseMat);
+pulse.position.set(0.05, 0.0, -0.14);
+flipper.add(pulse);
+const pulse2 = new THREE.Mesh(pulse.geometry, pulseMat.clone()); pulse2.position.copy(pulse.position); flipper.add(pulse2);
+// an annotation ring round the sticker on the back (white on white reads poorly on film): brand magenta, drawn on top
+const haloMat = new THREE.MeshBasicMaterial({ color: 0xd10f6a, transparent: true, opacity: 0, depthWrite: false, depthTest: false, side: THREE.DoubleSide });
+const halo = new THREE.Mesh(new THREE.RingGeometry(0.148, 0.156, 160), haloMat);
+halo.renderOrder = 10;
+flipper.add(halo);
+
+const loader = new GLTFLoader();
+async function load() {
+  const [f, s] = await Promise.all([loader.loadAsync('../assets/models/flipper.glb'), loader.loadAsync('../assets/models/ntag215-sticker.glb')]);
+  f.scene.traverse((o) => {
+    if (o.isMesh) {
+      const name = o.material && o.material.name;
+      if (M[name]) o.material = M[name];
+      o.castShadow = true; o.receiveShadow = true;
+    }
+  });
+  for (const n of ['body', 'dpad', 'back_button', 'led', 'screen']) parts[n] = f.scene.getObjectByName(n);
+  for (const n of ['dpad', 'back_button']) parts[n].userData.rest = parts[n].position.clone();
+  flipper.add(f.scene);
+  // the sticker: 25 mm disc in metres -> the Flipper model's units (1.0 = 100 mm), its flat face to +Z
+  s.scene.traverse((o) => {
+    if (o.isMesh) { o.geometry.computeVertexNormals(); o.material = stickerMat; o.castShadow = true; o.receiveShadow = true; }
+  });
+  const sb = new THREE.Box3().setFromObject(s.scene); const size = sb.getSize(new THREE.Vector3());
+  const thin = ['x', 'y', 'z'].reduce((a, b) => (size[a] < size[b] ? a : b));
+  if (thin === 'y') s.scene.rotation.x = -Math.PI / 2;
+  if (thin === 'x') s.scene.rotation.y = Math.PI / 2;
+  s.scene.scale.setScalar(10);
+  stickers[0].add(s.scene);
+  stickers[1].add(s.scene.clone()); stickers[2].add(s.scene.clone());
+  window.modelInfo = { stickerThin: thin, stickerSize: size.toArray() };
+}
+
+// ---- one pose -> one frame
+const V = (a) => new THREE.Vector3(...a);
+function applyPose(p) {
+  document.body.style.setProperty('--bg', p.bg || '#fff5e1');
+  camera.fov = p.cam.fov || 30; camera.updateProjectionMatrix();
+  camera.position.copy(V(p.cam.pos)); camera.lookAt(V(p.cam.target));
+  if (p.cam.roll) camera.rotateZ(p.cam.roll);
+  fill.position.copy(camera.position).add(new THREE.Vector3(0, 0.6, 0)); fill.target.position.copy(V(p.cam.target));
+  fill.intensity = p.fill ?? 0.55;
+  const fp = p.flipper || {};
+  flipper.visible = fp.visible !== false;
+  flipper.position.copy(V(fp.pos || [0, 0, 0])); flipper.rotation.set(...(fp.rot || [0, 0, 0]));
+  flipper.scale.setScalar(fp.scale ?? 1);
+  const sts = p.stickers || [p.sticker || {}];
+  stickers.forEach((g, i) => {
+    const sp = sts[i] || {};
+    const parent = sp.parent === 'flipper' ? flipper : scene;
+    if (g.parent !== parent) parent.add(g);
+    g.visible = !!sp.visible;
+    g.position.copy(V(sp.pos || [0, 0, 0])); g.rotation.set(...(sp.rot || [0, 0, 0]));
+    g.scale.setScalar(sp.scale ?? 1);
+  });
+  const h = p.halo || null;   // {pos, opacity, scale}
+  halo.visible = !!h && h.opacity > 0;
+  if (h) { halo.position.copy(V(h.pos)); haloMat.opacity = h.opacity; halo.scale.setScalar(h.scale ?? 1); }
+  const pu = p.pulse;   // 0..1 progress of one ring (and a second, 0.18 behind), or null
+  for (const [ring, k] of [[pulse, pu], [pulse2, pu == null ? null : pu - 0.22]]) {
+    const on = k != null && k > 0 && k < 1;
+    ring.visible = on;
+    if (on) { const e = 1 - Math.pow(1 - k, 2.2); ring.scale.setScalar(0.12 + 0.62 * e); ring.material.opacity = 0.85 * (1 - k) * Math.min(1, k * 6); }
+  }
+  // buttons: press depth along -Z (model units), tilt of the D-pad rocker (radians, x = up/down, y = left/right)
+  const b = p.buttons || {};
+  parts.dpad.position.copy(parts.dpad.userData.rest).add(new THREE.Vector3(0, 0, -(b.dpad || 0)));
+  parts.dpad.rotation.set(b.tiltX || 0, b.tiltY || 0, 0);
+  parts.back_button.position.copy(parts.back_button.userData.rest).add(new THREE.Vector3(0, 0, -(b.back || 0)));
+  M.Flipper_Green.emissiveIntensity = p.led || 0;
+  if (p.ledColor) M.Flipper_Green.emissive.set(p.ledColor);
+  floor.position.y = p.floorY ?? -0.45; floor.material.opacity = p.shadow ?? 0.16;
+  if (p.screen) showScreen(p.screen);
+}
+
+window.pose = async (p) => {
+  if (p.screen) await loadScreen(p.screen);
+  applyPose(p);
+  renderer.render(scene, camera);
+  return true;
+};
+window.preloadScreens = (ids) => Promise.all(ids.map(loadScreen));
+// film frame f (30 fps) -> the pose of the 3D shot that holds it (stage/shots.js), drawn
+window.renderFrame = async (f) => {
+  const t = f / 30;
+  const p = window.SHOT_POSE(t);
+  if (p.screen) await loadScreen(p.screen);
+  applyPose(p);
+  renderer.render(scene, camera);
+  return { t, shot: p.shot, screen: p.screen || null };
+};
+
+load().then(() => { window.stageReady = true; }, (e) => { console.error(e); window.stageError = String(e); });
+</script>
+</body>
+</html>

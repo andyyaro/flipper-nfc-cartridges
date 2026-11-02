@@ -4,6 +4,12 @@
 
 # NFC Cartridges for Flipper Zero
 
+<p align="center">
+  <a href="https://github.com/andyyaro/flipper-nfc-cartridges/releases/download/film-v1/nfc-cartridges-launch.mp4"><img src="docs/assets/readme/nfc-cartridges-in-action.webp" alt="The burn, from the launch film: the Flipper's real screen goes from the NFC Cartridges menu to the file browser and ode_to_joy.txt, a blank sticker flies onto its back, the song is written page by page until the screen says &quot;Cartridge burned!&quot;, and the camera goes round to the sticker, which now holds 100 of its 504 bytes. Select to watch the 77-second film." width="920"></a>
+</p>
+
+<p align="center"><b>Watch the 77-second launch film:</b> <a href="https://github.com/andyyaro/flipper-nfc-cartridges/releases/download/film-v1/nfc-cartridges-launch.mp4">MP4 with sound, 27.2 MB</a> · <a href="https://github.com/andyyaro/flipper-nfc-cartridges/releases/download/film-v1/nfc-cartridges-launch.vtt">captions</a> · <a href="media/launch-film/">how it was made</a></p>
+
 Songs that live entirely on an NFC sticker. Burn a tune onto a cheap NTAG sticker with your Flipper, stick it on something, and tap it later to hear it play.
 
 Nothing is stored on the SD card. The whole song sits on the sticker as a standard NDEF Text record containing RTTTL. Because it's plain NDEF, any phone NFC app can read a cartridge, and you can write one from a phone too.

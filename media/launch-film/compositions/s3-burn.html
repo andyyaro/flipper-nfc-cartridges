@@ -1,0 +1,44 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #b-top { opacity: 0; max-width: 1300px; }
+    #b-top .head { font-size: 58px; line-height: 64px; white-space: nowrap; }
+    /* the real-time chip as the sticker lands, then the bytes card once the camera is round the back */
+    #b-rt { position: absolute; left: 96px; top: 790px; opacity: 0; }
+    #b-card { position: absolute; left: 96px; top: 636px; width: 560px; padding: 26px 30px 28px; border-radius: 26px; background: #fff; opacity: 0; }
+    #b-card .t1 { font-size: 30px; line-height: 36px; font-weight: 600; }
+    #b-card .t2 { margin-top: 6px; font-size: 52px; line-height: 60px; font-weight: 700; letter-spacing: -1px; }
+    #b-card .t2 span { font-size: 30px; font-weight: 500; letter-spacing: 0; color: var(--ink-3); }
+    #b-bar { margin-top: 18px; height: 18px; border-radius: 9px; background: var(--fill); overflow: hidden; }
+    #b-fill { width: 0; height: 100%; border-radius: 9px; background: var(--magenta); }
+    #b-card .t3 { margin-top: 12px; font-size: 24px; line-height: 30px; color: var(--ink-3); }
+  </style>
+  <div id="root" data-composition-id="s3-burn" data-width="1920" data-height="1080">
+    <div id="b-top" class="topleft">
+      <div class="kicker">Burn</div>
+      <div class="head">Pick a song.<br />Hold a blank sticker to the back.</div>
+    </div>
+    <div id="b-rt" class="chip"><span class="dot m"></span><span>Real time: written and checked in 1.3 s</span></div>
+    <div id="b-card">
+      <div class="t1">Ode to Joy, on the sticker</div>
+      <div class="t2">100 <span>of 504 bytes</span></div>
+      <div id="b-bar"><div id="b-fill"></div></div>
+      <div class="t3">25 of 126 pages · a standard NDEF Text record</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const TM = window.TM, C = TM.cues, B = window.TAPE.burn;
+      const S0 = TM.s3[0], S1 = TM.s3[1];
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#b-top", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.25);
+      tl.to("#b-top", { opacity: 0, duration: 0.4, ease: "power1.in" }, C.burn_orbit - S0);
+      tl.fromTo("#b-rt", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, C.burn_dock - S0 + 0.05);
+      tl.to("#b-rt", { opacity: 0, duration: 0.35, ease: "power1.in" }, C.burn_orbit - S0);
+      tl.fromTo("#b-card", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, C.burn_bytes - S0 - 0.45);
+      tl.fromTo("#b-fill", { width: "0%" }, { width: (100 / 504 * 100).toFixed(2) + "%", duration: 0.7, ease: "power2.out" }, C.burn_bytes - S0);
+      tl.to("#b-card", { opacity: 0, duration: 0.3, ease: "power1.in" }, S1 - S0 - 0.75);
+      window.__timelines["s3-burn"] = tl;
+    })();
+  </script>
+</template>
