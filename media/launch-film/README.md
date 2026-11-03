@@ -49,11 +49,9 @@ everything that is generated, recorded, or that its licence does not let us hand
 
 The MP4, its captions and its poster are assets of the
 [`film-v1` release](https://github.com/andyyaro/flipper-nfc-cartridges/releases/tag/film-v1), so
-the 27.2 MB film is not in the repository's history. The repository is private, so only people
-with access to it can open the release asset. There is no watch page: a GitHub Pages site would
-make the film public. If the repository goes public, a watch page (`deploy/film.html`) and the
-workflow that publishes it (`film.yml`) can be added as
-[nearsay](https://github.com/andyyaro/nearsay/tree/main/media/launch-film) has them.
+the 27.2 MB film is not in the repository's history. There is no watch page yet. One
+(`deploy/film.html`) and the workflow that publishes it to GitHub Pages (`film.yml`) can be added
+as [nearsay](https://github.com/andyyaro/nearsay/tree/main/media/launch-film) has them.
 
 After rebuilding the film, replace the release asset:
 
